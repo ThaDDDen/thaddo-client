@@ -5,22 +5,30 @@ export abstract class BaseClient {
   }
 
   protected transformOptions(options: RequestInit): Promise<RequestInit> {
-    const token = localStorage.getItem("token");
+    // Only access localStorage in the browser
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
 
-    if (token) {
-      const headers = new Headers(options.headers || {});
-      headers.set("Authorization", `Bearer ${token}`);
+      if (token) {
+        const headers = new Headers(options.headers || {});
+        headers.set("Authorization", `Bearer ${token}`);
 
-      return Promise.resolve({
-        ...options,
-        headers,
-      });
+        return Promise.resolve({
+          ...options,
+          headers,
+        });
+      }
     }
 
     return Promise.resolve(options);
   }
 
   protected getDefaultHttp(): { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> } {
-    return { fetch };
+    // Use global fetch (works in both Node.js and browser environments)
+    return {
+      fetch: (url: RequestInfo, init?: RequestInit) => {
+        return fetch(url, init);
+      }
+    };
   }
 }
