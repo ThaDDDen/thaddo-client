@@ -26,9 +26,11 @@ import {
   Calendar,
   Clock,
   LogOut,
+  Repeat,
 } from "lucide-react";
 import AppDialog from "@/components/shared/app-dialog";
 import CreateTaskForm from "@/components/tasks/forms/create-task-form";
+import { CreateRecurrenceRuleDialog } from "@/components/recurrence-rules/create-recurrence-rule-dialog";
 
 const getPriorityVariant = (
   priority: TaskPriority,
@@ -82,6 +84,13 @@ function TestApiPageContent() {
             </div>
           </div>
           <div className="flex gap-2">
+            <CreateRecurrenceRuleDialog>
+              <Button variant="outline">
+                <Repeat className="h-4 w-4 mr-2" />
+                New Recurrence Rule
+              </Button>
+            </CreateRecurrenceRuleDialog>
+
             <AppDialog
               isDialogOpen={isDialogOpen}
               setIsDialogOpen={setIsDialogOpen}
