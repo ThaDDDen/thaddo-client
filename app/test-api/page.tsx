@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useTasks, useCreateTask } from "@/lib/hooks/use-tasks";
+import { useTodaysTasks } from "@/lib/hooks/use-tasks";
 import { TaskPriority } from "@/lib/api/generated-client";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { useAuth } from "@/lib/hooks/use-auth";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
 // Force dynamic rendering to avoid SSR issues with API client
 export const dynamic = "force-dynamic";
@@ -23,99 +20,48 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { CheckCircle2, AlertCircle, Calendar, Clock, LogOut, Plus } from "lucide-react";
+  CheckCircle2,
+  AlertCircle,
+  Calendar,
+  Clock,
+  LogOut,
+} from "lucide-react";
+import AppDialog from "@/components/shared/app-dialog";
+import CreateTaskForm from "@/components/tasks/forms/create-task-form";
 
-const createTaskSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  priority: z.nativeEnum(TaskPriority),
-  dueDate: z.string().min(1, "Due date is required"),
-});
+const getPriorityVariant = (
+  priority: TaskPriority,
+): "default" | "secondary" | "destructive" => {
+  switch (priority) {
+    case TaskPriority.Low:
+      return "secondary";
+    case TaskPriority.Medium:
+      return "default";
+    case TaskPriority.High:
+      return "destructive";
+    default:
+      return "default";
+  }
+};
 
-type CreateTaskFormData = z.infer<typeof createTaskSchema>;
+const getPriorityLabel = (priority: TaskPriority) => {
+  switch (priority) {
+    case TaskPriority.Low:
+      return "Low";
+    case TaskPriority.Medium:
+      return "Medium";
+    case TaskPriority.High:
+      return "High";
+    default:
+      return "Unknown";
+  }
+};
 
 function TestApiPageContent() {
-  const { data: tasks, isLoading, isError, error } = useTasks();
+  const { data: tasks, isLoading, isError, error } = useTodaysTasks();
   const { logout } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const createTaskMutation = useCreateTask();
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors },
-  } = useForm<CreateTaskFormData>({
-    resolver: zodResolver(createTaskSchema),
-    defaultValues: {
-      priority: TaskPriority.Medium,
-    },
-  });
-
-  const onSubmit = (data: CreateTaskFormData) => {
-    createTaskMutation.mutate(
-      {
-        title: data.title,
-        description: data.description || "",
-        priority: data.priority,
-        dueDate: new Date(data.dueDate),
-      },
-      {
-        onSuccess: () => {
-          reset();
-          setIsDialogOpen(false);
-        },
-      }
-    );
-  };
-
-  const getPriorityVariant = (
-    priority: TaskPriority,
-  ): "default" | "secondary" | "destructive" => {
-    switch (priority) {
-      case TaskPriority.Low:
-        return "secondary";
-      case TaskPriority.Medium:
-        return "default";
-      case TaskPriority.High:
-        return "destructive";
-      default:
-        return "default";
-    }
-  };
-
-  const getPriorityLabel = (priority: TaskPriority) => {
-    switch (priority) {
-      case TaskPriority.Low:
-        return "Low";
-      case TaskPriority.Medium:
-        return "Medium";
-      case TaskPriority.High:
-        return "High";
-      default:
-        return "Unknown";
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -136,123 +82,23 @@ function TestApiPageContent() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Task
+            <AppDialog
+              isDialogOpen={isDialogOpen}
+              setIsDialogOpen={setIsDialogOpen}
+              dialogTrigger={<Button>Create task</Button>}
+              dialogTitle="Create Task"
+              dialogDescription="Fill out the form to create a new task"
+              dialogContent={<CreateTaskForm />}
+              dialogFooter={
+                <Button
+                  onClick={() => setIsDialogOpen(false)}
+                  variant="destructive"
+                >
+                  Cancel
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Task</DialogTitle>
-                  <DialogDescription>
-                    Add a new task to your list. This requires authentication.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                  {createTaskMutation.isError && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Failed to create task. Please try again.
-                      </AlertDescription>
-                    </Alert>
-                  )}
+              }
+            />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Title</Label>
-                    <Input
-                      id="title"
-                      placeholder="Task title"
-                      {...register("title")}
-                      disabled={createTaskMutation.isPending}
-                    />
-                    {errors.title && (
-                      <p className="text-sm text-destructive">
-                        {errors.title.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description (Optional)</Label>
-                    <Input
-                      id="description"
-                      placeholder="Task description"
-                      {...register("description")}
-                      disabled={createTaskMutation.isPending}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="priority">Priority</Label>
-                    <Select
-                      value={watch("priority")?.toString()}
-                      onValueChange={(value) =>
-                        setValue("priority", parseInt(value) as TaskPriority)
-                      }
-                      disabled={createTaskMutation.isPending}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={TaskPriority.Low.toString()}>
-                          Low
-                        </SelectItem>
-                        <SelectItem value={TaskPriority.Medium.toString()}>
-                          Medium
-                        </SelectItem>
-                        <SelectItem value={TaskPriority.High.toString()}>
-                          High
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.priority && (
-                      <p className="text-sm text-destructive">
-                        {errors.priority.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="dueDate">Due Date</Label>
-                    <Input
-                      id="dueDate"
-                      type="date"
-                      {...register("dueDate")}
-                      disabled={createTaskMutation.isPending}
-                    />
-                    {errors.dueDate && (
-                      <p className="text-sm text-destructive">
-                        {errors.dueDate.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      type="submit"
-                      disabled={createTaskMutation.isPending}
-                      className="flex-1"
-                    >
-                      {createTaskMutation.isPending
-                        ? "Creating..."
-                        : "Create Task"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                      disabled={createTaskMutation.isPending}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
             <Button variant="outline" onClick={logout}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout

@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AuthProvider } from "./auth-provider";
+import ThemeProvider from "./theme-provider";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -33,10 +34,17 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {children}
-        <ReactQueryDevtools initialIsOpen={false} />
-      </AuthProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <AuthProvider>
+          {children}
+          <ReactQueryDevtools initialIsOpen={false} />
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
