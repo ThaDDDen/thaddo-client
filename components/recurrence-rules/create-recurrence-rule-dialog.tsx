@@ -45,7 +45,8 @@ export function CreateRecurrenceRuleDialog({
 
     // Generate RRULE string
     const rule = new RRule(ruleOptions);
-    const rRuleString = rule.toString();
+    // Remove "RRULE:" prefix for Ical.Net compatibility
+    const rRuleString = rule.toString().replace(/^RRULE:/, '');
 
     // Create the request
     createRecurrenceRuleMutation.mutate(
