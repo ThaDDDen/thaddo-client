@@ -25,12 +25,13 @@ export function useTasks(startDate?: Date, endDate?: Date) {
 }
 
 export function useTodaysTasks() {
-  const startDate = new Date();
-  startDate.setHours(0, 0, 0, 0);
+  const now = new Date();
+  const startDate = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
 
-  const endDate = new Date();
-  endDate.setHours(0, 0, 0, 0);
-  endDate.setDate(endDate.getDate() + 1);
+  const endDate = new Date(startDate);
+  endDate.setUTCDate(endDate.getUTCDate() + 1);
 
   return useQuery({
     queryKey: taskKeys.list({ startDate, endDate }),
