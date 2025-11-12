@@ -38,9 +38,24 @@ export function CreateRecurrenceRuleDialog({
       ruleOptions.until = new Date(data.until);
     }
 
-    // Add weekdays for weekly recurrence
-    if (data.frequency === Frequency.WEEKLY && data.byweekday?.length > 0) {
+    // Add weekdays (for weekly, monthly, or yearly recurrence)
+    if (data.byweekday?.length > 0) {
       ruleOptions.byweekday = data.byweekday;
+    }
+
+    // Add month days (for monthly or yearly recurrence)
+    if (data.bymonthday?.length > 0) {
+      ruleOptions.bymonthday = data.bymonthday;
+    }
+
+    // Add months (for yearly recurrence)
+    if (data.bymonth?.length > 0) {
+      ruleOptions.bymonth = data.bymonth;
+    }
+
+    // Add position in set (for monthly or yearly recurrence)
+    if (data.bysetpos !== undefined && data.bysetpos !== null && data.bysetpos !== "") {
+      ruleOptions.bysetpos = parseInt(data.bysetpos);
     }
 
     // Generate RRULE string

@@ -26,6 +26,9 @@ const recurrenceRuleSchema = z.object({
   count: z.number().optional(),
   until: z.string().optional(),
   byweekday: z.array(z.number()).optional(),
+  bymonthday: z.array(z.number()).optional(), // Day of month (1-31)
+  bysetpos: z.number().optional(), // Position in set (e.g., 1st, 2nd, -1 for last)
+  bymonth: z.array(z.number()).optional(), // Month numbers (1-12)
   taskTitle: z.string().min(1, "Task title is required"),
   taskDescription: z.string().optional(),
   taskPriority: z.nativeEnum(TaskPriority),
@@ -51,6 +54,21 @@ const WEEKDAYS = [
   { label: "Sun", value: RRule.SU.weekday },
 ];
 
+const MONTHS = [
+  { label: "January", value: 1 },
+  { label: "February", value: 2 },
+  { label: "March", value: 3 },
+  { label: "April", value: 4 },
+  { label: "May", value: 5 },
+  { label: "June", value: 6 },
+  { label: "July", value: 7 },
+  { label: "August", value: 8 },
+  { label: "September", value: 9 },
+  { label: "October", value: 10 },
+  { label: "November", value: 11 },
+  { label: "December", value: 12 },
+];
+
 export function RecurrenceRuleForm({
   onSubmit,
   onCancel,
@@ -71,12 +89,16 @@ export function RecurrenceRuleForm({
       endType: "never",
       taskPriority: TaskPriority.Medium,
       byweekday: [],
+      bymonthday: [],
+      bymonth: [],
     },
   });
 
   const frequency = watch("frequency");
   const endType = watch("endType");
   const byweekday = watch("byweekday") || [];
+  const bymonthday = watch("bymonthday") || [];
+  const bymonth = watch("bymonth") || [];
 
   const toggleWeekday = (weekday: number) => {
     const current = byweekday || [];
@@ -87,6 +109,30 @@ export function RecurrenceRuleForm({
       );
     } else {
       setValue("byweekday", [...current, weekday]);
+    }
+  };
+
+  const toggleMonthDay = (day: number) => {
+    const current = bymonthday || [];
+    if (current.includes(day)) {
+      setValue(
+        "bymonthday",
+        current.filter((d) => d !== day)
+      );
+    } else {
+      setValue("bymonthday", [...current, day]);
+    }
+  };
+
+  const toggleMonth = (month: number) => {
+    const current = bymonth || [];
+    if (current.includes(month)) {
+      setValue(
+        "bymonth",
+        current.filter((m) => m !== month)
+      );
+    } else {
+      setValue("bymonth", [...current, month]);
     }
   };
 
@@ -239,6 +285,181 @@ export function RecurrenceRuleForm({
               ))}
             </div>
           </div>
+        )}
+
+        {/* Monthly Options */}
+        {frequency === Frequency.MONTHLY && (
+          <>
+            <div className="space-y-2">
+              <Label>Repeat On Weekdays (Optional)</Label>
+              <div className="flex flex-wrap gap-2">
+                {WEEKDAYS.map((day) => (
+                  <div key={day.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`monthly-weekday-${day.value}`}
+                      checked={byweekday.includes(day.value)}
+                      onCheckedChange={() => toggleWeekday(day.value)}
+                      disabled={isSubmitting}
+                    />
+                    <Label
+                      htmlFor={`monthly-weekday-${day.value}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {day.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>On Month Days (Optional)</Label>
+              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                  <div key={day} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`monthday-${day}`}
+                      checked={bymonthday.includes(day)}
+                      onCheckedChange={() => toggleMonthDay(day)}
+                      disabled={isSubmitting}
+                    />
+                    <Label
+                      htmlFor={`monthday-${day}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {day}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Select specific days of the month (1-31)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bysetpos">Position in Set (Optional)</Label>
+              <Select
+                value={watch("bysetpos")?.toString() || ""}
+                onValueChange={(value) =>
+                  setValue("bysetpos", value ? parseInt(value) : undefined)
+                }
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Any occurrence" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Any occurrence</SelectItem>
+                  <SelectItem value="1">First</SelectItem>
+                  <SelectItem value="2">Second</SelectItem>
+                  <SelectItem value="3">Third</SelectItem>
+                  <SelectItem value="4">Fourth</SelectItem>
+                  <SelectItem value="-1">Last</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                E.g., "First Friday" or "Last Monday"
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* Yearly Options */}
+        {frequency === Frequency.YEARLY && (
+          <>
+            <div className="space-y-2">
+              <Label>In Months</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {MONTHS.map((month) => (
+                  <div key={month.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`month-${month.value}`}
+                      checked={bymonth.includes(month.value)}
+                      onCheckedChange={() => toggleMonth(month.value)}
+                      disabled={isSubmitting}
+                    />
+                    <Label
+                      htmlFor={`month-${month.value}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {month.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>On Weekdays (Optional)</Label>
+              <div className="flex flex-wrap gap-2">
+                {WEEKDAYS.map((day) => (
+                  <div key={day.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`yearly-weekday-${day.value}`}
+                      checked={byweekday.includes(day.value)}
+                      onCheckedChange={() => toggleWeekday(day.value)}
+                      disabled={isSubmitting}
+                    />
+                    <Label
+                      htmlFor={`yearly-weekday-${day.value}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {day.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>On Month Days (Optional)</Label>
+              <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                  <div key={day} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`yearly-monthday-${day}`}
+                      checked={bymonthday.includes(day)}
+                      onCheckedChange={() => toggleMonthDay(day)}
+                      disabled={isSubmitting}
+                    />
+                    <Label
+                      htmlFor={`yearly-monthday-${day}`}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {day}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="yearly-bysetpos">Position in Set (Optional)</Label>
+              <Select
+                value={watch("bysetpos")?.toString() || ""}
+                onValueChange={(value) =>
+                  setValue("bysetpos", value ? parseInt(value) : undefined)
+                }
+                disabled={isSubmitting}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Any occurrence" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Any occurrence</SelectItem>
+                  <SelectItem value="1">First</SelectItem>
+                  <SelectItem value="2">Second</SelectItem>
+                  <SelectItem value="3">Third</SelectItem>
+                  <SelectItem value="4">Fourth</SelectItem>
+                  <SelectItem value="-1">Last</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                E.g., "First Friday of March" or "Last Monday of December"
+              </p>
+            </div>
+          </>
         )}
       </div>
 
