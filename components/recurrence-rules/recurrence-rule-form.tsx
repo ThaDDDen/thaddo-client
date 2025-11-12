@@ -340,9 +340,9 @@ export function RecurrenceRuleForm({
             <div className="space-y-2">
               <Label htmlFor="bysetpos">Position in Set (Optional)</Label>
               <Select
-                value={watch("bysetpos")?.toString() || ""}
+                value={watch("bysetpos")?.toString() || "none"}
                 onValueChange={(value) =>
-                  setValue("bysetpos", value ? parseInt(value) : undefined)
+                  setValue("bysetpos", value !== "none" ? parseInt(value) : undefined)
                 }
                 disabled={isSubmitting}
               >
@@ -350,7 +350,7 @@ export function RecurrenceRuleForm({
                   <SelectValue placeholder="Any occurrence" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any occurrence</SelectItem>
+                  <SelectItem value="none">Any occurrence</SelectItem>
                   <SelectItem value="1">First</SelectItem>
                   <SelectItem value="2">Second</SelectItem>
                   <SelectItem value="3">Third</SelectItem>
@@ -437,9 +437,9 @@ export function RecurrenceRuleForm({
             <div className="space-y-2">
               <Label htmlFor="yearly-bysetpos">Position in Set (Optional)</Label>
               <Select
-                value={watch("bysetpos")?.toString() || ""}
+                value={watch("bysetpos")?.toString() || "none"}
                 onValueChange={(value) =>
-                  setValue("bysetpos", value ? parseInt(value) : undefined)
+                  setValue("bysetpos", value !== "none" ? parseInt(value) : undefined)
                 }
                 disabled={isSubmitting}
               >
@@ -447,7 +447,7 @@ export function RecurrenceRuleForm({
                   <SelectValue placeholder="Any occurrence" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any occurrence</SelectItem>
+                  <SelectItem value="none">Any occurrence</SelectItem>
                   <SelectItem value="1">First</SelectItem>
                   <SelectItem value="2">Second</SelectItem>
                   <SelectItem value="3">Third</SelectItem>

@@ -54,7 +54,7 @@ export function CreateRecurrenceRuleDialog({
     }
 
     // Add position in set (for monthly or yearly recurrence)
-    if (data.bysetpos !== undefined && data.bysetpos !== null && data.bysetpos !== "") {
+    if (data.bysetpos !== undefined && data.bysetpos !== null) {
       ruleOptions.bysetpos = parseInt(data.bysetpos);
     }
 
