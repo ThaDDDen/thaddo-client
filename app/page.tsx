@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSwipeable } from "react-swipeable";
 import { motion, AnimatePresence } from "framer-motion";
 import { addDays, subDays, startOfDay, endOfDay, format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useTasks } from "@/lib/hooks/use-tasks";
+import { useTasks, taskKeys } from "@/lib/hooks/use-tasks";
+import { apiClient } from "@/lib/api/client";
 
 function formatDateString(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -28,7 +30,7 @@ function getDateTitle(date: Date): string {
   const targetDate = startOfDay(date);
 
   const daysDiff = Math.floor(
-    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   if (daysDiff === 0) return "Todays Tasks";
@@ -41,11 +43,38 @@ function getDateTitle(date: Date): string {
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [direction, setDirection] = useState<1 | -1>(1); // 1 = forward (left swipe), -1 = backward (right swipe)
+  const queryClient = useQueryClient();
 
   const startDate = startOfDay(currentDate);
   const endDate = endOfDay(currentDate);
 
-  const { data: tasks, isLoading } = useTasks(startDate, endDate);
+  const { data: tasks, isLoading, isPlaceholderData } = useTasks(startDate, endDate);
+
+  // Prefetch adjacent dates for smooth swiping
+  useEffect(() => {
+    const tomorrow = addDays(currentDate, 1);
+    const yesterday = subDays(currentDate, 1);
+
+    // Prefetch tomorrow
+    queryClient.prefetchQuery({
+      queryKey: taskKeys.list({
+        startDate: startOfDay(tomorrow),
+        endDate: endOfDay(tomorrow),
+      }),
+      queryFn: () =>
+        apiClient.getTasks(startOfDay(tomorrow), endOfDay(tomorrow)),
+    });
+
+    // Prefetch yesterday
+    queryClient.prefetchQuery({
+      queryKey: taskKeys.list({
+        startDate: startOfDay(yesterday),
+        endDate: endOfDay(yesterday),
+      }),
+      queryFn: () =>
+        apiClient.getTasks(startOfDay(yesterday), endOfDay(yesterday)),
+    });
+  }, [currentDate, queryClient]);
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
@@ -69,7 +98,8 @@ export default function Home() {
     delta: 50,
   });
 
-  if (isLoading) return <span>Loading..</span>;
+  // Only show loading on initial mount, not during navigation
+  if (isLoading && !tasks) return <span>Loading..</span>;
 
   return (
     <main className="h-full w-full flex flex-col relative">
@@ -77,7 +107,9 @@ export default function Home() {
         <h3 className="mx-auto text-white font-semibold w-fit">
           {formatDateString(currentDate)}
         </h3>
-        <h1 className="text-white text-4xl font-bold">{getDateTitle(currentDate)}</h1>
+        <h1 className="text-white text-4xl font-bold">
+          {getDateTitle(currentDate)}
+        </h1>
       </div>
       <div
         {...handlers}
@@ -91,12 +123,10 @@ export default function Home() {
                 custom={direction}
                 initial={(dir: number) => ({
                   x: dir * 300, // Enter from right if going forward, left if going backward
-                  opacity: 0,
                 })}
-                animate={{ x: 0, opacity: 1 }}
+                animate={{ x: 0 }}
                 exit={(dir: number) => ({
                   x: dir * -300, // Exit to left if going forward, right if going backward
-                  opacity: 0,
                 })}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
