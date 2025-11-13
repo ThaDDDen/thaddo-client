@@ -83,12 +83,12 @@ export default function Home() {
               <motion.div
                 key={currentDate.toISOString()}
                 initial={{
-                  x: swipeDirection === "left" ? 300 : swipeDirection === "right" ? -300 : 0,
+                  x: swipeDirection === "left" ? -300 : swipeDirection === "right" ? 300 : 0,
                   opacity: 0,
                 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{
-                  x: swipeDirection === "left" ? -300 : swipeDirection === "right" ? 300 : 0,
+                  x: swipeDirection === "left" ? 300 : swipeDirection === "right" ? -300 : 0,
                   opacity: 0,
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
