@@ -40,9 +40,7 @@ function getDateTitle(date: Date): string {
 
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(
-    null
-  );
+  const [direction, setDirection] = useState<1 | -1>(1); // 1 = forward, -1 = backward
 
   const startDate = startOfDay(currentDate);
   const endDate = endOfDay(currentDate);
@@ -51,11 +49,11 @@ export default function Home() {
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      setSwipeDirection("left");
+      setDirection(1); // Moving forward in time
       setCurrentDate((d) => addDays(d, 1));
     },
     onSwipedRight: () => {
-      setSwipeDirection("right");
+      setDirection(-1); // Moving backward in time
       setCurrentDate((d) => subDays(d, 1));
     },
     preventScrollOnSwipe: false,
@@ -83,12 +81,12 @@ export default function Home() {
               <motion.div
                 key={currentDate.toISOString()}
                 initial={{
-                  x: swipeDirection === "left" ? -300 : swipeDirection === "right" ? 300 : 0,
+                  x: direction * 300,
                   opacity: 0,
                 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{
-                  x: swipeDirection === "left" ? 300 : swipeDirection === "right" ? -300 : 0,
+                  x: direction * -300,
                   opacity: 0,
                 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
