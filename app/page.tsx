@@ -83,7 +83,7 @@ export default function Home() {
       setDirection(1);
       setTimeout(() => {
         setCurrentDate((d) => addDays(d, 1));
-      }, 0);
+      }, 50);
     },
     onSwipedRight: () => {
       // Swipe right = go backward = yesterday
@@ -91,7 +91,7 @@ export default function Home() {
       setDirection(-1);
       setTimeout(() => {
         setCurrentDate((d) => subDays(d, 1));
-      }, 0);
+      }, 50);
     },
     preventScrollOnSwipe: false,
     trackMouse: false,
@@ -117,7 +117,7 @@ export default function Home() {
       >
         <div className="-mt-10 relative flex-1">
           <div className="absolute inset-0 overflow-y-scroll">
-            <AnimatePresence initial={false} custom={direction}>
+            <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={currentDate.toISOString()}
                 custom={direction}
@@ -129,7 +129,6 @@ export default function Home() {
                   x: dir * -300, // Exit to left if going forward, right if going backward
                 })}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="absolute inset-0"
               >
                 {tasks && tasks.length > 0 ? (
                   <>
