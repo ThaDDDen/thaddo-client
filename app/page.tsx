@@ -83,7 +83,7 @@ export default function Home() {
       setDirection(1);
       setTimeout(() => {
         setCurrentDate((d) => addDays(d, 1));
-      }, 50);
+      }, 300); // Match animation duration
     },
     onSwipedRight: () => {
       // Swipe right = go backward = yesterday
@@ -91,7 +91,7 @@ export default function Home() {
       setDirection(-1);
       setTimeout(() => {
         setCurrentDate((d) => subDays(d, 1));
-      }, 50);
+      }, 300); // Match animation duration
     },
     preventScrollOnSwipe: false,
     trackMouse: false,
