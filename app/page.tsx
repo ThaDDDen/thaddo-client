@@ -117,7 +117,7 @@ export default function Home() {
       >
         <div className="-mt-10 relative flex-1">
           <div className="absolute inset-0 overflow-y-scroll">
-            <AnimatePresence mode="wait" initial={false} custom={direction}>
+            <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={currentDate.toISOString()}
                 custom={direction}
@@ -129,6 +129,7 @@ export default function Home() {
                   x: dir * -300, // Exit to left if going forward, right if going backward
                 })}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="absolute inset-0"
               >
                 {tasks && tasks.length > 0 ? (
                   <>
