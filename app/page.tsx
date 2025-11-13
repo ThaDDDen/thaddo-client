@@ -40,7 +40,7 @@ function getDateTitle(date: Date): string {
 
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [direction, setDirection] = useState<1 | -1>(1); // 1 = forward, -1 = backward
+  const [direction, setDirection] = useState<1 | -1>(1); // 1 = forward (left swipe), -1 = backward (right swipe)
 
   const startDate = startOfDay(currentDate);
   const endDate = endOfDay(currentDate);
@@ -49,12 +49,20 @@ export default function Home() {
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      setDirection(1); // Moving forward in time
-      setCurrentDate((d) => addDays(d, 1));
+      // Swipe left = go forward = tomorrow
+      // Content should exit left (-), new content enters from right (+)
+      setDirection(1);
+      setTimeout(() => {
+        setCurrentDate((d) => addDays(d, 1));
+      }, 0);
     },
     onSwipedRight: () => {
-      setDirection(-1); // Moving backward in time
-      setCurrentDate((d) => subDays(d, 1));
+      // Swipe right = go backward = yesterday
+      // Content should exit right (+), new content enters from left (-)
+      setDirection(-1);
+      setTimeout(() => {
+        setCurrentDate((d) => subDays(d, 1));
+      }, 0);
     },
     preventScrollOnSwipe: false,
     trackMouse: false,
@@ -77,18 +85,19 @@ export default function Home() {
       >
         <div className="-mt-10 relative flex-1">
           <div className="absolute inset-0 overflow-y-scroll">
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="wait" initial={false} custom={direction}>
               <motion.div
                 key={currentDate.toISOString()}
-                initial={{
-                  x: direction * 300,
+                custom={direction}
+                initial={(dir: number) => ({
+                  x: dir * 300, // Enter from right if going forward, left if going backward
                   opacity: 0,
-                }}
+                })}
                 animate={{ x: 0, opacity: 1 }}
-                exit={{
-                  x: direction * -300,
+                exit={(dir: number) => ({
+                  x: dir * -300, // Exit to left if going forward, right if going backward
                   opacity: 0,
-                }}
+                })}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
                 {tasks && tasks.length > 0 ? (
