@@ -42,6 +42,7 @@ function getDateTitle(date: Date): string {
 
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [displayDate, setDisplayDate] = useState(new Date()); // Separate state for display
   const [direction, setDirection] = useState<1 | -1>(1); // 1 = forward (left swipe), -1 = backward (right swipe)
   const queryClient = useQueryClient();
 
@@ -81,17 +82,23 @@ export default function Home() {
       // Swipe left = go forward = tomorrow
       // Content should exit left (-), new content enters from right (+)
       setDirection(1);
+      const nextDate = addDays(currentDate, 1);
+      setCurrentDate(nextDate);
+      // Delay display update until animation completes
       setTimeout(() => {
-        setCurrentDate((d) => addDays(d, 1));
-      }, 300); // Match animation duration
+        setDisplayDate(nextDate);
+      }, 300);
     },
     onSwipedRight: () => {
       // Swipe right = go backward = yesterday
       // Content should exit right (+), new content enters from left (-)
       setDirection(-1);
+      const prevDate = subDays(currentDate, 1);
+      setCurrentDate(prevDate);
+      // Delay display update until animation completes
       setTimeout(() => {
-        setCurrentDate((d) => subDays(d, 1));
-      }, 300); // Match animation duration
+        setDisplayDate(prevDate);
+      }, 300);
     },
     preventScrollOnSwipe: false,
     trackMouse: false,
@@ -105,10 +112,10 @@ export default function Home() {
     <main className="h-full w-full flex flex-col relative">
       <div className="flex flex-col pt-8 pb-16 items-center gap-4 sticky top-0">
         <h3 className="mx-auto text-white font-semibold w-fit">
-          {formatDateString(currentDate)}
+          {formatDateString(displayDate)}
         </h3>
         <h1 className="text-white text-4xl font-bold">
-          {getDateTitle(currentDate)}
+          {getDateTitle(displayDate)}
         </h1>
       </div>
       <div
