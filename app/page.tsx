@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSwipeable } from "react-swipeable";
 import { motion, AnimatePresence } from "framer-motion";
-import { addDays, subDays, startOfDay, endOfDay, format } from "date-fns";
+import { addDays, subDays, format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useTasks, taskKeys } from "@/lib/hooks/use-tasks";
 import { apiClient } from "@/lib/api/client";
+import { startOfDayUTC, endOfDayUTC } from "@/lib/utils/dates";
 
 function formatDateString(date: Date): string {
   return date.toLocaleDateString("en-GB", {
@@ -26,8 +27,8 @@ function formatDateString(date: Date): string {
 }
 
 function getDateTitle(date: Date): string {
-  const today = startOfDay(new Date());
-  const targetDate = startOfDay(date);
+  const today = startOfDayUTC(new Date());
+  const targetDate = startOfDayUTC(date);
 
   const daysDiff = Math.floor(
     (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
@@ -43,11 +44,11 @@ function getDateTitle(date: Date): string {
 export default function Home() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [displayDate, setDisplayDate] = useState(new Date()); // Separate state for display
-  const [direction, setDirection] = useState<1 | -1>(1); // 1 = forward (left swipe), -1 = backward (right swipe)
+  const [direction, setDirection] = useState<1 | -1>(1);
   const queryClient = useQueryClient();
 
-  const startDate = startOfDay(currentDate);
-  const endDate = endOfDay(currentDate);
+  const startDate = startOfDayUTC(currentDate);
+  const endDate = endOfDayUTC(currentDate);
 
   const { data: tasks, isLoading, isPlaceholderData } = useTasks(startDate, endDate);
 
@@ -59,21 +60,21 @@ export default function Home() {
     // Prefetch tomorrow
     queryClient.prefetchQuery({
       queryKey: taskKeys.list({
-        startDate: startOfDay(tomorrow),
-        endDate: endOfDay(tomorrow),
+        startDate: startOfDayUTC(tomorrow),
+        endDate: endOfDayUTC(tomorrow),
       }),
       queryFn: () =>
-        apiClient.getTasks(startOfDay(tomorrow), endOfDay(tomorrow)),
+        apiClient.getTasks(startOfDayUTC(tomorrow), endOfDayUTC(tomorrow)),
     });
 
     // Prefetch yesterday
     queryClient.prefetchQuery({
       queryKey: taskKeys.list({
-        startDate: startOfDay(yesterday),
-        endDate: endOfDay(yesterday),
+        startDate: startOfDayUTC(yesterday),
+        endDate: endOfDayUTC(yesterday),
       }),
       queryFn: () =>
-        apiClient.getTasks(startOfDay(yesterday), endOfDay(yesterday)),
+        apiClient.getTasks(startOfDayUTC(yesterday), endOfDayUTC(yesterday)),
     });
   }, [currentDate, queryClient]);
 
@@ -82,23 +83,21 @@ export default function Home() {
       // Swipe left = go forward = tomorrow
       // Content should exit left (-), new content enters from right (+)
       setDirection(1);
-      const nextDate = addDays(currentDate, 1);
-      setCurrentDate(nextDate);
-      // Delay display update until animation completes
       setTimeout(() => {
+        const nextDate = addDays(currentDate, 1);
+        setCurrentDate(nextDate);
         setDisplayDate(nextDate);
-      }, 300);
+      }, 0);
     },
     onSwipedRight: () => {
       // Swipe right = go backward = yesterday
       // Content should exit right (+), new content enters from left (-)
       setDirection(-1);
-      const prevDate = subDays(currentDate, 1);
-      setCurrentDate(prevDate);
-      // Delay display update until animation completes
       setTimeout(() => {
+        const prevDate = subDays(currentDate, 1);
+        setCurrentDate(prevDate);
         setDisplayDate(prevDate);
-      }, 300);
+      }, 0);
     },
     preventScrollOnSwipe: false,
     trackMouse: false,
@@ -128,13 +127,23 @@ export default function Home() {
               <motion.div
                 key={currentDate.toISOString()}
                 custom={direction}
-                initial={(dir: number) => ({
-                  x: dir * 300, // Enter from right if going forward, left if going backward
-                })}
-                animate={{ x: 0 }}
-                exit={(dir: number) => ({
-                  x: dir * -300, // Exit to left if going forward, right if going backward
-                })}
+                variants={{
+                  enter: (dir: number) => ({
+                    x: dir * 300,
+                    opacity: 0,
+                  }),
+                  center: {
+                    x: 0,
+                    opacity: 1,
+                  },
+                  exit: (dir: number) => ({
+                    x: dir * -300,
+                    opacity: 0,
+                  }),
+                }}
+                initial="enter"
+                animate="center"
+                exit="exit"
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
                 {tasks && tasks.length > 0 ? (
