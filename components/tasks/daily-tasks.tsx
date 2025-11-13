@@ -132,7 +132,7 @@ const DailyTasks = () => {
                     {unfinishedTasks && unfinishedTasks.length > 0 && (
                       <TaskList taskList={unfinishedTasks} />
                     )}
-                    {finishedTasks && finishedTasks && (
+                    {finishedTasks && finishedTasks.length > 0 && (
                       <>
                         <div className="py-4 flex justify-center">
                           <span>Completed</span>
