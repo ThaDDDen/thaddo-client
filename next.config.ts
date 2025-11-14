@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   // Add empty turbopack config to silence the warning
   turbopack: {},
+  // Enable standalone output for Docker
+  output: "standalone",
 };
 
 export default withPWA({
