@@ -4,6 +4,7 @@ import type {
   TaskDto,
   CreateTaskRequest,
   UpdateTaskRequest,
+  ToggleCompletedRequest,
 } from "@/lib/api/generated-client";
 
 // Query keys
@@ -67,6 +68,27 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, request }: { id: number; request: UpdateTaskRequest }) =>
       apiClient.updateTask(id, request),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.id),
+      });
+    },
+  });
+}
+
+// Toggle Completed
+export function useToggleCompleted() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      request,
+    }: {
+      id: number;
+      request: ToggleCompletedRequest;
+    }) => apiClient.toggleCompleted(id, request),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       queryClient.invalidateQueries({
