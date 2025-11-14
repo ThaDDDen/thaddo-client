@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const CreateTaskForm = () => {
   const {
@@ -42,7 +43,7 @@ const CreateTaskForm = () => {
         title: data.title,
         description: data.description || "",
         priority: data.priority,
-        dueDate: new Date(data.dueDate),
+        dueDate: data.dueDate,
       },
       {
         onSuccess: () => {
@@ -114,10 +115,9 @@ const CreateTaskForm = () => {
 
       <div className="space-y-2">
         <Label htmlFor="dueDate">Due Date</Label>
-        <Input
-          id="dueDate"
-          type="date"
-          {...register("dueDate")}
+        <DatePicker
+          date={watch("dueDate") ? new Date(watch("dueDate")) : undefined}
+          onSelect={(date) => setValue("dueDate", date || new Date())}
           disabled={createTaskMutation.isPending}
         />
         {errors.dueDate && (

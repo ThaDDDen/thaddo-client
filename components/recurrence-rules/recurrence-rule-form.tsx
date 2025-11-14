@@ -18,13 +18,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { TaskPriority } from "@/lib/api/generated-client";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const recurrenceRuleSchema = z.object({
   frequency: z.nativeEnum(Frequency),
   interval: z.number().min(1, "Interval must be at least 1"),
   endType: z.enum(["never", "count", "until"]),
   count: z.number().optional(),
-  until: z.string().optional(),
+  until: z.date().optional(),
   byweekday: z.array(z.number()).optional(),
   bymonthday: z.array(z.number()).optional(), // Day of month (1-31)
   bysetpos: z.number().optional(), // Position in set (e.g., 1st, 2nd, -1 for last)
@@ -32,7 +33,7 @@ const recurrenceRuleSchema = z.object({
   taskTitle: z.string().min(1, "Task title is required"),
   taskDescription: z.string().optional(),
   taskPriority: z.nativeEnum(TaskPriority),
-  startDate: z.string().min(1, "Start date is required"),
+  startDate: z.date({ message: "Start date is required" }),
 });
 
 type RecurrenceRuleFormData = z.infer<typeof recurrenceRuleSchema>;
@@ -203,10 +204,9 @@ export function RecurrenceRuleForm({
 
         <div className="space-y-2">
           <Label htmlFor="startDate">Start Date</Label>
-          <Input
-            id="startDate"
-            type="date"
-            {...register("startDate")}
+          <DatePicker
+            date={watch("startDate")}
+            onSelect={(date) => setValue("startDate", date || new Date())}
             disabled={isSubmitting}
           />
           {errors.startDate && (
@@ -507,10 +507,9 @@ export function RecurrenceRuleForm({
         {endType === "until" && (
           <div className="space-y-2">
             <Label htmlFor="until">End Date</Label>
-            <Input
-              id="until"
-              type="date"
-              {...register("until")}
+            <DatePicker
+              date={watch("until")}
+              onSelect={(date) => setValue("until", date)}
               disabled={isSubmitting}
             />
             {errors.until && (

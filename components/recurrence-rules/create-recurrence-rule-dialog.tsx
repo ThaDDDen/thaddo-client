@@ -35,7 +35,7 @@ export function CreateRecurrenceRuleDialog({
     if (data.endType === "count" && data.count) {
       ruleOptions.count = parseInt(data.count);
     } else if (data.endType === "until" && data.until) {
-      ruleOptions.until = new Date(data.until);
+      ruleOptions.until = data.until; // Already a Date object
     }
 
     // Add weekdays (for weekly, monthly, or yearly recurrence)
@@ -67,8 +67,8 @@ export function CreateRecurrenceRuleDialog({
     createRecurrenceRuleMutation.mutate(
       {
         rRule: rRuleString,
-        startDate: new Date(data.startDate),
-        endDate: data.until ? new Date(data.until) : undefined,
+        startDate: data.startDate, // Already a Date object
+        endDate: data.until || undefined, // Already a Date object
         maxOccurrences: data.count ? parseInt(data.count) : undefined,
         taskTitle: data.taskTitle,
         taskDescription: data.taskDescription || "",
