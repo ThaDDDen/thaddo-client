@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/Providers";
+import { ModeToggle } from "@/components/shared/mode-toggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,8 +47,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex flex-col bg-primary h-screen">
-          <Providers>{children}</Providers>
+        <div className="flex flex-col bg-primary h-screen relative">
+          <Providers>
+            <div className="absolute right-4 top-4">
+              <ModeToggle />
+            </div>
+            {children}
+          </Providers>
         </div>
       </body>
     </html>
