@@ -42,7 +42,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
       >
         <AuthProvider>
           {children}
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/*<ReactQueryDevtools initialIsOpen={false} />*/}
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
