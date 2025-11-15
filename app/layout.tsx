@@ -49,7 +49,7 @@ export default function RootLayout({
       >
         <div className="flex flex-col bg-primary h-screen relative">
           <Providers>
-            <div className="absolute right-4 top-4">
+            <div className="absolute right-4 top-4 z-10">
               <ModeToggle />
             </div>
             {children}
