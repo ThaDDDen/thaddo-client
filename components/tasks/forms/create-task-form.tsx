@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
+import { toUTCMidnight } from "@/lib/utils";
 
 const CreateTaskForm = () => {
   const {
@@ -43,7 +44,7 @@ const CreateTaskForm = () => {
         title: data.title,
         description: data.description || "",
         priority: data.priority,
-        dueDate: data.dueDate,
+        dueDate: toUTCMidnight(data.dueDate),
       },
       {
         onSuccess: () => {
@@ -117,7 +118,7 @@ const CreateTaskForm = () => {
         <Label htmlFor="dueDate">Due Date</Label>
         <DatePicker
           date={watch("dueDate") ? new Date(watch("dueDate")) : undefined}
-          onSelect={(date) => setValue("dueDate", date || new Date())}
+          onSelect={(date) => setValue("dueDate", date ? toUTCMidnight(date) : new Date())}
           disabled={createTaskMutation.isPending}
         />
         {errors.dueDate && (

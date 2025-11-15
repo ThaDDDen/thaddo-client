@@ -19,6 +19,7 @@ import { AlertCircle } from "lucide-react";
 import { TaskPriority } from "@/lib/api/generated-client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
+import { toUTCMidnight } from "@/lib/utils";
 
 const recurrenceRuleSchema = z.object({
   frequency: z.nativeEnum(Frequency),
@@ -206,7 +207,7 @@ export function RecurrenceRuleForm({
           <Label htmlFor="startDate">Start Date</Label>
           <DatePicker
             date={watch("startDate")}
-            onSelect={(date) => setValue("startDate", date || new Date())}
+            onSelect={(date) => setValue("startDate", date ? toUTCMidnight(date) : new Date())}
             disabled={isSubmitting}
           />
           {errors.startDate && (
@@ -509,7 +510,7 @@ export function RecurrenceRuleForm({
             <Label htmlFor="until">End Date</Label>
             <DatePicker
               date={watch("until")}
-              onSelect={(date) => setValue("until", date)}
+              onSelect={(date) => setValue("until", date ? toUTCMidnight(date) : undefined)}
               disabled={isSubmitting}
             />
             {errors.until && (
