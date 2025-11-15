@@ -33,24 +33,6 @@ const DailyTasks = () => {
       >
         <TasksContent tasks={tasks} />
       </SwipeableTasksContainer>
-
-      <AppDialog
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
-        dialogTrigger={
-          <div className="bg-background w-full sticky  p-4">
-            <Button className="rounded-full w-full">Add new task</Button>
-          </div>
-        }
-        dialogTitle="Create Task"
-        dialogDescription="Fill out the form to create a new task"
-        dialogContent={<CreateTaskForm />}
-        dialogFooter={
-          <Button onClick={() => setIsDialogOpen(false)} variant="destructive">
-            Cancel
-          </Button>
-        }
-      />
     </>
   );
 };

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/Providers";
 import { ModeToggle } from "@/components/shared/mode-toggle";
+import BottomBar from "@/components/ui/layout/bottom-bar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,12 +48,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex flex-col bg-primary h-screen relative">
+        <div className="flex flex-col bg-secondary h-screen relative">
           <Providers>
-            <div className="absolute right-4 top-4 z-10">
-              <ModeToggle />
-            </div>
             {children}
+            <BottomBar />
           </Providers>
         </div>
       </body>
