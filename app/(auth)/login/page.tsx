@@ -42,7 +42,7 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/test-api");
+      router.push("/");
     }
   }, [isAuthenticated, router]);
 
