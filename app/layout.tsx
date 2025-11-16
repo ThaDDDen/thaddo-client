@@ -50,7 +50,9 @@ export default function RootLayout({
       >
         <div className="flex flex-col bg-secondary h-screen relative">
           <Providers>
-            {children}
+            <main className="h-full w-full flex flex-col relative">
+              {children}
+            </main>
             <BottomBar />
           </Providers>
         </div>

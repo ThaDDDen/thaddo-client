@@ -1,5 +1,9 @@
-const DashboardLayout = () => {
-  return <div>DashboardLayout</div>;
+const DashboardLayout = ({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) => {
+  return <div className="w-full h-full">{children}</div>;
 };
 
 export default DashboardLayout;

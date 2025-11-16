@@ -1449,6 +1449,7 @@ export interface TaskDto extends BaseAuditableEntityDto {
     completed?: boolean;
     completedAt?: Date;
     recurrenceRuleId?: number | undefined;
+    recurrenceRule?: RecurrenceRuleDto | undefined;
     parentTaskId?: number | undefined;
     parentTask?: Task | undefined;
     taskListId?: number | undefined;

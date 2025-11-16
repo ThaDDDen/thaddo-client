@@ -14,6 +14,7 @@ import { getPriorityVariant } from "@/lib/utils/priority";
 import { Checkbox } from "../ui/checkbox";
 import CompleteTaskToggle from "./complete-task-toggle";
 import { FaRepeat } from "react-icons/fa6";
+import Link from "next/link";
 
 interface TaskListItemProps extends React.HTMLAttributes<HTMLElement> {
   task: TaskDto;
@@ -36,14 +37,17 @@ const TaskListItem = ({
     >
       <CardHeader>
         <CardTitle className="flex">
-          <div className="flex items-center gap-2 me-auto">
+          <Link
+            href={`/tasks/${task.id}`}
+            className="flex items-center gap-2 me-auto"
+          >
             <span>{task.title}</span>
             <Badge
               variant={getPriorityVariant(task.priority!)}
               className="h-4 w-4 min-w-0 p-0"
             />
             {task.recurrenceRuleId && <FaRepeat />}
-          </div>
+          </Link>
           <CompleteTaskToggle task={task} />
         </CardTitle>
         <CardDescription>{task.description}</CardDescription>

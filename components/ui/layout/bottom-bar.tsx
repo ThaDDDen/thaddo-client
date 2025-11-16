@@ -26,7 +26,7 @@ const BottomBar = () => {
   const { setTheme } = useTheme();
 
   return (
-    <div className="sticky bottom-0 h-14 backdrop-blur-md flex justify-between p-4">
+    <div className="sticky bottom-0 h-14 bg-secondary flex justify-between p-4">
       <FaAngleLeft className="w-6 h-6 " />
       <FaAngleRight className="w-6 h-6 " />
       <FaMagnifyingGlass className="w-6 h-6 " />
