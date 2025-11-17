@@ -7,9 +7,30 @@ import { useAuth } from "@/lib/hooks/use-auth";
 import { Repeat } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import { FaAngleLeft, FaAngleRight, FaBars, FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
+import {
+  FaAngleLeft,
+  FaAngleRight,
+  FaBars,
+  FaMagnifyingGlass,
+  FaPlus,
+} from "react-icons/fa6";
 import { Button } from "../button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../dropdown-menu";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "../drawer";
 
 const BottomBar = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -22,33 +43,41 @@ const BottomBar = () => {
       <FaAngleRight className="w-6 h-6 " />
       <FaMagnifyingGlass className="w-6 h-6 " />
 
+      <Drawer>
+        <DrawerTrigger asChild>
+          <FaPlus className="w-6 h-6 " />
+        </DrawerTrigger>
+        <DrawerContent>
+          <div className="mx-auto w-full max-w-sm">
+            <CreateTaskForm onAfterSubmit={() => setIsDialogOpen(false)} />
+            <DrawerFooter>
+              <DrawerClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </div>
+        </DrawerContent>
+      </Drawer>
       <CreateRecurrenceRuleDialog>
         <Repeat className="h-6 w-6" />
       </CreateRecurrenceRuleDialog>
 
-      <AppDialog
-        isDialogOpen={isDialogOpen}
-        setIsDialogOpen={setIsDialogOpen}
-        dialogTrigger={<FaPlus className="w-6 h-6 " />}
-        dialogTitle="Create Task"
-        dialogDescription="Fill out the form to create a new task"
-        dialogContent={<CreateTaskForm onAfterSubmit={() => setIsDialogOpen(false)} />}
-        dialogFooter={
-          <Button onClick={() => setIsDialogOpen(false)} variant="destructive">
-            Cancel
-          </Button>
-        }
-      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <FaBars className="w-6 h-6 " />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent>
-          <DropdownMenuItem className="dark:hidden block" onClick={() => setTheme("dark")}>
+          <DropdownMenuItem
+            className="dark:hidden block"
+            onClick={() => setTheme("dark")}
+          >
             Dark
           </DropdownMenuItem>
-          <DropdownMenuItem className="dark:block hidden" onClick={() => setTheme("light")}>
+          <DropdownMenuItem
+            className="dark:block hidden"
+            onClick={() => setTheme("light")}
+          >
             Light
           </DropdownMenuItem>
         </DropdownMenuContent>
