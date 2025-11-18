@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api/client";
-import { CreateRecurrenceRuleRequest } from "@/lib/api/generated-client";
+import {
+  CreateRecurrenceRuleRequest,
+  DeleteRecurrenceRuleRequest,
+} from "@/lib/api/generated-client";
+import { taskKeys } from "./use-tasks";
 
 const recurrenceRuleKeys = {
   all: ["recurrenceRules"] as const,
@@ -34,6 +38,18 @@ export function useCreateRecurrenceRule() {
       apiClient.createRecurrenceRule(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: recurrenceRuleKeys.lists() });
+    },
+  });
+}
+
+export function useDeleteRecurrenceRule() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: DeleteRecurrenceRuleRequest) =>
+      apiClient.deleteRecurrenceRule(request.id!, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
     },
   });
 }
