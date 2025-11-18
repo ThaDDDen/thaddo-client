@@ -12,7 +12,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initialize().finally(() => {
       setIsInitialized(true);
     });
-  }, [initialize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Show nothing while initializing to prevent flash of wrong content
   if (!isInitialized) {

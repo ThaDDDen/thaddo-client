@@ -22,11 +22,6 @@ export abstract class BaseClient {
 
     const authStore = getAuthStore();
 
-    // Check if token is expiring and refresh if needed
-    if (authStore.isTokenExpiring() && authStore.refreshToken) {
-      await authStore.refreshAccessToken();
-    }
-
     // Get the current access token
     const accessToken = authStore.accessToken;
 
